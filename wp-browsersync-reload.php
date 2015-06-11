@@ -26,6 +26,15 @@ class WP_Browsersync_Reload {
 	 */
 	private $options;
 
+	public function __contruct( $extra_hooks ) {
+
+		/*
+		 * Load our options
+		 */
+		$this->options = get_option(WP_BROWSERSYNC_RELOAD_SLUG . 'options');
+
+	}
+
 	/**
 	 * init
 	 *
@@ -34,12 +43,10 @@ class WP_Browsersync_Reload {
 	 * @type    function
 	 * @since   1.0.0
 	 */
-	public static function init() {
-		$self = new self();
+	public function init() {
 
-		$self->options = get_option(WP_BROWSERSYNC_RELOAD_SLUG . 'options');
-
-		add_action('save_post', array($self, 'reload_browsersync'));
+		add_action('save_post', array($this, 'reload_browsersync'));
+		
 	}
 
 	public function reload_browsersync() {
@@ -48,5 +55,8 @@ class WP_Browsersync_Reload {
 	}
 }
 
-//Hook the plugin launch after plugins have loaded
-add_action('plugins_loaded', array('WP_Browsersync_Reload', 'init'));
+//TODO: Add a hook for others to easily add which other hooks they want to attach browsersync to
+$extra_hooks = array();
+
+$wp_browsersync = new WP_Browsersync_Reload();
+add_action('init', array($wp_browsersync, 'init'));
