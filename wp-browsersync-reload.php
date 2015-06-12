@@ -272,9 +272,42 @@ class WP_Browsersync_Reload {
 
 	}
 
-	public function reload_browsersync() {
-		$args = ['blocking' => false];
-		wp_remote_get('http://192.168.1.2:3000/__browser_sync__?method=reload', $args);
+	/**
+	 * reload_browsersync
+	 *
+	 * The magic.
+	 *
+	 * @type    function
+	 * @since
+	 * @param * @param $post_id
+	 */
+	public function reload_browsersync( $post_id ) {
+
+		/**
+		 * If this is just a post revision or autosave ignore it
+		 */
+		if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id))
+			return;
+
+		/**
+		 * The remote request arguments
+		 */
+		$args = [
+			'blocking' => false
+		];
+
+		/**
+		 * Send the get request to the browsersync HTTP API Protocol
+		 */
+		$response = wp_remote_get('http://'. $this->options['browsersync_host'] .':'. $this->options['browsersync_port'] .'/__browser_sync__?method=reload', $args);
+
+		/**
+		 * If there was an error print it out
+		 * TODO: More helpful error messages
+		 */
+		if(is_wp_error($response)) {
+			wp_die('<strong>WP Browsersync Reload Plugin Error</strong>: ' . $response->get_error_message(), 'WP Browsersync Reload Plugin Error');
+		}
 	}
 }
 
